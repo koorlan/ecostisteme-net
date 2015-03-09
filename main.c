@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include <pthread.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <time.h>
 
 
@@ -386,7 +388,6 @@ void *network_reciever(){
 
   packetdata_t packet;
   packetdata_t spacket;
-  int nbytes;
   int i_addrlen=sizeof(i_addr);
   memset(&packet,0,sizeof(packetdata_t));
   memset(&spacket,0,sizeof(packetdata_t));   
@@ -408,7 +409,7 @@ for (;;) {
    select(maxfd+1, &rdset, NULL, NULL, &timeout);
  if (FD_ISSET(maxfd, &rdset) ) {
     memset(&packet, 0, sizeof(packetdata_t));
-    nbytes=recvfrom(maxfd,(void*)&packet,sizeof(packetdata_t),0,(struct sockaddr *) &i_addr,&i_addrlen);
+    recvfrom(maxfd,(void*)&packet,sizeof(packetdata_t),0,(struct sockaddr *) &i_addr,(socklen_t *)&i_addrlen);
     if (!packet_check_protocol(packet)) continue;
     switch (me.status){
       case CONNECTED:
